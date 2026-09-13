@@ -3483,8 +3483,16 @@ function renderLeaderboardTV(){
   const nextEvSignupIndex = nextEv ? buildNextEventSignupIndex(nextEv) : null;
   const nextEvShortDate = nextEv ? fmtShortDate(nextEv.date) : "";
 
+  // Team divisions can run long, so on these two TVs specifically only the
+  // top N per division are shown (solo divisions are unaffected). Times
+  // are still saved and count everywhere else (Results tab, CSV export,
+  // the athlete's own record) -- this only trims what these two screens
+  // display.
+  const LB_DIVISION_CAP = { "Men's Doubles": 3, "Women's Doubles": 3, "Mixed Doubles": 1 };
   function divCardHtml(div){
-    const list = rows.filter(r=>r.participant.division===div).sort((a,b)=>a.elapsedMs-b.elapsedMs);
+    const full = rows.filter(r=>r.participant.division===div).sort((a,b)=>a.elapsedMs-b.elapsedMs);
+    const cap = LB_DIVISION_CAP[div];
+    const list = cap ? full.slice(0, cap) : full;
     // Name gets a fixed-width column (rather than flex:1 + space-between)
     // so the time sits right after the name instead of pinned to the far
     // edge of the now full-width stacked card, while still lining up in a
