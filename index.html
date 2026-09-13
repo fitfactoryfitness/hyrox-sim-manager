@@ -3470,29 +3470,21 @@ function renderLeaderboardTV(){
   }
   const rows = getResultsWithMeta(ev);
   const medals = ["🥇","🥈","🥉"];
-  // Split across two physical TVs, same screen otherwise: men's divisions
-  // on ?view=leaderboard, women's + mixed on ?view=leaderboard2. Filtering
+  // Split across two physical TVs: ?view=leaderboard shows every division
+  // in full, ?view=leaderboard2 is dedicated to Women's Solo only. Filtering
   // DIVISIONS (rather than building the list by hand) keeps whichever
   // subset applies in DIVISIONS' own fixed order.
   const lbAllowedDivisions = DIRECT_LEADERBOARD2_MODE
-    ? ["Mixed Doubles","Women's Doubles","Women's Solo"]
-    : ["Men's Doubles","Men's Solo"];
+    ? ["Women's Solo"]
+    : DIVISIONS;
   const lbDivisions = DIVISIONS.filter(d=>d!=="Relay" && lbAllowedDivisions.includes(d));
   const fontScale = 1.2;
   const nextEv = nextEventAfter(ev);
   const nextEvSignupIndex = nextEv ? buildNextEventSignupIndex(nextEv) : null;
   const nextEvShortDate = nextEv ? fmtShortDate(nextEv.date) : "";
 
-  // Team divisions can run long, so on these two TVs specifically only the
-  // top N per division are shown (solo divisions are unaffected). Times
-  // are still saved and count everywhere else (Results tab, CSV export,
-  // the athlete's own record) -- this only trims what these two screens
-  // display.
-  const LB_DIVISION_CAP = { "Men's Doubles": 3, "Women's Doubles": 3, "Mixed Doubles": 1 };
   function divCardHtml(div){
-    const full = rows.filter(r=>r.participant.division===div).sort((a,b)=>a.elapsedMs-b.elapsedMs);
-    const cap = LB_DIVISION_CAP[div];
-    const list = cap ? full.slice(0, cap) : full;
+    const list = rows.filter(r=>r.participant.division===div).sort((a,b)=>a.elapsedMs-b.elapsedMs);
     // Name gets a fixed-width column (rather than flex:1 + space-between)
     // so the time sits right after the name instead of pinned to the far
     // edge of the now full-width stacked card, while still lining up in a
