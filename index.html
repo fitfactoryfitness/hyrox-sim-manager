@@ -3326,21 +3326,18 @@ function renderTvCountdownHtml(ev){
 function renderStartListTV(){
   const ev = curEvent();
   const now = new Date();
-  // Only treat heats as "started"/"next" on the actual event date -- comparing
-  // time-of-day alone (the old bug) marked morning heats this way every
-  // single day at the matching hour, weeks before the event actually happens.
-  const localDateStr = now.getFullYear()+"-"+String(now.getMonth()+1).padStart(2,"0")+"-"+String(now.getDate()).padStart(2,"0");
-  const isEventDay = localDateStr === ev.date;
-  const nowMin = now.getHours()*60 + now.getMinutes();
+  const nowTs = now.getTime();
   const heats = ev.heats.slice().sort((a,b)=> timeToMin(a.time)-timeToMin(b.time));
 
-  // Front-desk view: fade out heats whose start time has already passed
-  // (check-in for them is over) and call out whichever not-yet-started heat
-  // is soonest -- ties (parallel heats at the same start time) all count as
-  // "next" too.
-  const nextStartMin = isEventDay
-    ? heats.map(h=>timeToMin(h.time)).filter(t=>t>nowMin).reduce((m,t)=>Math.min(m,t), Infinity)
-    : null;
+  // Front-desk view: fade out heats whose full scheduled date+time has
+  // already passed (check-in for them is over) and call out whichever
+  // not-yet-started heat is soonest -- ties (parallel heats at the same
+  // start time) all count as "next" too. Comparing the actual date+time
+  // (not just time-of-day) means this is correct whether it's checked days
+  // before the event or live on race day itself -- e.g. the night before,
+  // the very first heat tomorrow morning is already "next".
+  const heatTs = h => heatScheduledTs(ev, h);
+  const nextTs = heats.map(heatTs).filter(t=>t>nowTs).reduce((m,t)=>Math.min(m,t), Infinity);
 
   const nameParts = ev.name.split(/\s+[-\u2013\u2014]\s+/).map(s=>s.trim()).filter(Boolean);
   const eventTitle = nameParts.join(" · ");
@@ -3355,8 +3352,8 @@ function renderStartListTV(){
 
   function cardsHtml(fontScale){
     return heats.map(h=>{
-      const startMin = timeToMin(h.time);
-      const status = !isEventDay ? "upcoming" : (startMin<=nowMin ? "started" : (startMin===nextStartMin ? "next" : "upcoming"));
+      const ts = heatTs(h);
+      const status = ts<=nowTs ? "started" : (ts===nextTs ? "next" : "upcoming");
       const teamLines = h.participantIds.map(id=>ev.participants.find(p=>p.id===id)).filter(Boolean).map(p=>teamLabel(p));
       const namesHtml = teamLines.length ? teamLines.map(t=>`<div>${esc(t)}</div>`).join("") : "Open slot";
       return `<div style="${cardStyle[status]}border-radius:10px;padding:${10*fontScale}px ${12*fontScale}px;">
