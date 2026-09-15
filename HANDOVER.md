@@ -12,15 +12,35 @@ needs to see or edit any code.
 
 ## How to actually use it
 
-⚠️ **Action needed from Lucas before this section can be finished:** confirm the exact web
-address (or bookmark) staff currently use to open this on event day, since it's not written
-down anywhere in the project files. Add it here once confirmed:
-
-> URL: _______________________________
+Open **https://www.fitfactoryfitness.com/hyrox-app** — that's the real, permanent address
+staff should use on event day. Nothing to install.
 
 Admin login (for anyone who needs to make changes, not just view) uses email + password
 through the app itself — ask Lucas for the current admin login, or see "Setting up access"
 below for how to create a new one.
+
+## How this is actually hosted (important — different from the other 4 apps)
+
+This one has no Vercel project. The company website (built in **Webflow**) has a page at
+`/hyrox-app` that embeds this app in an invisible frame, pointing at
+**GitHub Pages** — a free hosting feature built into this exact GitHub repository. In plain
+terms: whatever is in `index.html` on the `main` branch is automatically what's live at
+`fitfactoryfitness.github.io/hyrox-sim-manager/`, usually within a minute or two of a push.
+No separate deploy step, no separate hosting account to transfer — it rides along with the
+GitHub repo.
+
+**One real gotcha, already hit once:** when this repo was transferred into the
+`fitfactoryfitness` GitHub org, its GitHub Pages address changed (the old
+`lucasrfitfactory-create.github.io/...` link died), which broke the live embed on the actual
+website until the Webflow page's embed code was updated to point at the new address. If this
+repo is ever transferred, renamed, or GitHub Pages ever gets disabled/re-enabled on it again,
+**check `fitfactoryfitness.com/hyrox-app` still loads** — it will silently go blank
+otherwise, and nothing about the repo itself will look broken.
+
+### Access needed to edit the live website embed
+Whoever manages the Fit Factory Webflow site needs to be the one fixing that embed if it
+ever breaks again — that's a **Webflow** account permission, separate from GitHub/Firebase.
+Confirm with Lucas who currently has Webflow editor access.
 
 ## Setting up access (do this before 2026-09-29)
 
